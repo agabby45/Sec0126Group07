@@ -15,7 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r packages}
 # Put any packages you want here
-
+library(gt)
+library(tidyverse)
+library(gtsummary)
+library(plotly)
+library(readxl)
+library(plotly)
+library(corrplot)
+sessionInfo()
 ```
 
 
@@ -38,7 +45,7 @@ Answer the following questions using complete sentences and attach all output, p
 
 ```{r dataset, include=FALSE}
 # Bring in the dataset here
-
+insurancegroup7 <- read_excel("../Data/insurance_0126_Group7.xlsx")
 
 ```
 
@@ -49,6 +56,90 @@ Answer the following questions using complete sentences and attach all output, p
 Perform univariate analyses on the quantitative variables (center, shape, spread). Include descriptive statistics, and histograms. Be sure to use terms discussed in class such as bimodal, skewed left, etc.
 
 ```{r q1}
+# ************************************* CHARGES  *************************************
+
+# Adding the Charges column to the "charges" variable
+charges <- (insurancegroup7$Charges)
+# This generates the mean of the Charges column using the "charges" variable
+mean(charges)
+# This generates the median of the Charges column using the "charges" variable
+median(charges)
+
+# Custom function created by professor to generate the mode using the "charges" variable
+getModes <- function(x) {
+  ux <- unique(x)
+  tab <- tabulate(match(x, ux))
+  ux[tab == max(tab)]
+}
+
+# Using the custom function from the professor to get the mode of the Charges column using the "charges" variable
+getModes(charges)
+
+# Generate a histogram of the Charges column using the "charges" variable
+hist(charges)
+
+# ************************************* Age  *************************************
+
+age <- (insurancegroup7$Age)
+
+mean(age)
+
+median(age)
+
+
+getModes <- function(x) {
+  ux <- unique(x)
+  tab <- tabulate(match(x, ux))
+  ux[tab == max(tab)]
+}
+
+
+getModes(age)
+summary(age)
+hist(age)
+
+# ************************************* BMI  *************************************
+
+bmi <- (insurancegroup7$BMI)
+
+mean(bmi)
+
+median(bmi)
+
+
+getModes <- function(x) {
+  ux <- unique(x)
+  tab <- tabulate(match(x, ux))
+  ux[tab == max(tab)]
+}
+
+
+getModes(bmi)
+summary(bmi)
+hist(bmi)
+
+
+
+# ************************************* Children  *************************************
+
+children <- (insurancegroup7$Children)
+
+mean(children)
+
+median(children)
+
+
+getModes <- function(x) {
+  ux <- unique(x)
+  tab <- tabulate(match(x, ux))
+  ux[tab == max(tab)]
+}
+
+
+getModes(children)
+summary(children)
+hist(children)
+
 
 ```
 

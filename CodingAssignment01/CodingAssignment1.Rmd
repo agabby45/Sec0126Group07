@@ -2,11 +2,14 @@
 title: "Coding Assignment 1"
 author: "Team N"
 date: "Due: 2021-09-29 23:59"
-output: 
+output:
+  word_document:
+    toc: yes
+    toc_depth: '2'
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 2
-    toc_float: true
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -59,11 +62,11 @@ Perform univariate analyses on the quantitative variables (center, shape, spread
 # ************************************* CHARGES  *************************************
 
 # Adding the Charges column to the "charges" variable
-charges <- (insurancegroup7$Charges)
+Charges <- (insurancegroup7$Charges)
 # This generates the mean of the Charges column using the "charges" variable
-mean(charges)
+mean(Charges)
 # This generates the median of the Charges column using the "charges" variable
-median(charges)
+median(Charges)
 
 # Custom function created by professor to generate the mode using the "charges" variable
 getModes <- function(x) {
@@ -73,18 +76,18 @@ getModes <- function(x) {
 }
 
 # Using the custom function from the professor to get the mode of the Charges column using the "charges" variable
-getModes(charges)
+getModes(Charges)
 
 # Generate a histogram of the Charges column using the "charges" variable
-hist(charges)
+hist(Charges)
 
 # ************************************* Age  *************************************
 
-age <- (insurancegroup7$Age)
+Age <- (insurancegroup7$Age)
 
-mean(age)
+mean(Age)
 
-median(age)
+median(Age)
 
 
 getModes <- function(x) {
@@ -94,17 +97,17 @@ getModes <- function(x) {
 }
 
 
-getModes(age)
-summary(age)
-hist(age)
+getModes(Age)
+summary(Age)
+hist(Age)
 
 # ************************************* BMI  *************************************
 
-bmi <- (insurancegroup7$BMI)
+BMI <- (insurancegroup7$BMI)
 
-mean(bmi)
+mean(BMI)
 
-median(bmi)
+median(BMI)
 
 
 getModes <- function(x) {
@@ -114,19 +117,19 @@ getModes <- function(x) {
 }
 
 
-getModes(bmi)
-summary(bmi)
-hist(bmi)
+getModes(BMI)
+summary(BMI)
+hist(BMI)
 
 
 
 # ************************************* Children  *************************************
 
-children <- (insurancegroup7$Children)
+Children <- (insurancegroup7$Children)
 
-mean(children)
+mean(Children)
 
-median(children)
+median(Children)
 
 
 getModes <- function(x) {
@@ -136,9 +139,9 @@ getModes <- function(x) {
 }
 
 
-getModes(children)
-summary(children)
-hist(children)
+getModes(Children)
+summary(Children)
+hist(Children)
 
 
 ```
@@ -148,6 +151,46 @@ hist(children)
 Perform bivariate analyses on the quantitative variables (direction, strength and form). Describe the linear association between all variables. 
 
 ```{r q2}
+plot(insurancegroup7$Charges, insurancegroup7$Age,
+     main = "Scatterplot of Charges and Age",
+     xlab = "Charges",
+     ylab = "Age",
+     col="blue")
+
+cor(insurancegroup7$Charges, insurancegroup7$Age)
+
+
+
+plot(insurancegroup7$Charges, insurancegroup7$BMI,
+     main = "Scatterplot of Charges and BMI",
+     xlab = "Charges",
+     ylab = "BMI",
+     col="green")
+
+cor(insurancegroup7$Charges, insurancegroup7$BMI)
+
+
+
+plot(insurancegroup7$Age, insurancegroup7$BMI,
+     main = "Scatterplot of Age and BMI",
+     xlab = "Age",
+     ylab = "BMI",
+     col="red")
+
+cor(insurancegroup7$Age, insurancegroup7$BMI)
+
+plot(insurancegroup7$BMI, insurancegroup7$Charges,
+     main = "Scatterplot of BMI and Charges",
+     xlab = "BMI",
+     ylab = "Charges",
+     col="black")
+
+plot(insurancegroup7$Age, insurancegroup7$Charges,
+     main = "Scatterplot of Age and Charges",
+     xlab = "Age",
+     ylab = "Charges",
+     col="gray")
+
 
 ```
 

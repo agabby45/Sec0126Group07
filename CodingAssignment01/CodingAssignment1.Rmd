@@ -12,11 +12,11 @@ output:
     toc_depth: '2'
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r packages, include=FALSE}
+```{r packages, include=TRUE}
 # Put any packages you want here
 library(gt)
 library(tidyverse)
@@ -80,6 +80,7 @@ summary(Charges)
 sd(Charges)
 # Using the custom function from the professor to get the mode of the Charges column using the "charges" variable
 getModes(Charges)
+IQR(Charges)
 # Generate a histogram of the Charges column using the "charges" variable
 hist(Charges)
 ```
@@ -88,7 +89,9 @@ Median: 9819.649<br>
 Mode: Unimodal<br>
 Std Deviation: 14569.33<br>
 Histogram: Skewed right, wide distribution <br>
-Measure of center: Median is not sensitive to outliers while the mean and std deviation are sensitive<br>
+Measure of center: Median is not sensitive to outliers while the mean is, thus Median better used as the measure of center in Charges. 
+Measure of spread: Standard deviation is sensitive to outliers since it measures the distance between the data point and the mean. Additionally, the range is also sensitive to outliers, range: 58,571 – 1,147 = 57,424. In this case, because the mean is not the center the interquartile range (Q3-Q1)may be a better measure of spread because it is not sensitive to outliers. The interquartile range:  20,372 - 4,144 = 16,288.
+<br>
 
 ```{r q1 Age}
 # ************************************* Age  *************************************
@@ -104,8 +107,9 @@ hist(Age)
 Median:         36.00<br>
 Mode:           Bimodal<br>
 Std Deviation:  14.81196<br>
-Histogram:      xxxxxxxxxxxxxxxxxxxxx<br>
-Measure of center: xxxxxxxxxxxxxxxxxxx<br>
+Histogram:      Bimodal, two peaks<br>
+Measure of center: Mean<br>
+Measure of spread:  Since the Mean is the measure of center the best measure of spread will be the standard deviation (14.81196)<br>
 ```{r q1 BMI}
 # ************************************* BMI  *************************************
 
@@ -118,9 +122,11 @@ hist(BMI)
 <br>Mean: 32.33<br>
 Median: 32.11<br>
 Mode: Bimodal<br>
-Std Deviation:5.150382
-Histogram: Skew left
-Measure of center: 
+Std Deviation:5.150382<br>
+Histogram: Bell shaped curve<br>
+Measure of center: Since the histogram takes on a bell shaped curve the mean is the preferred measure of center.<br>
+Measure of spread: With a bell shaped curve histogram the best measure of spread is the standard deviation.
+ 
 ```{r q1 Children}
 # ************************************* Children  *************************************
 
@@ -129,14 +135,16 @@ summary(Children)
 sd(Children)
 getModes(Children)
 hist(Children)
+IQR(Children)
 
 ```
 <br>Mean: 1.06<br>
 Median: 1.00<br>
 Mode: 0<br>
 Std Deviation:1.391079<br>
-Histogram: Skew right<br>
-Measure of center: xxxxxxxxxxxxxxxxxxxx<br>
+Histogram: Skewed right<br>
+Measure of center: Median<br>
+Measure of spread: IQR (1.75)
 
 
 
@@ -146,7 +154,7 @@ Perform bivariate analyses on the quantitative variables (direction, strength an
 
 ```{r q2}
 #use cor and scatterplot function
-data <- data.frame(insurancegroup7$Charges, insurancegroup7$Age, insurancegroup7$BMI, insurancegroup7$Children)
+data <- data.frame(Charges, Age, BMI, Children)
 scatterplotMatrix(data)
 
 corrplot(cor(data),
@@ -154,13 +162,12 @@ corrplot(cor(data),
          tl.col = "black",
          tl.srt = 45,
          addCoef.col = "black",
-         diag = FALSE,
-         main = "Correlation Plot Of Quantitivae Variables" )
+         diag = FALSE,)
 
 ```
 
 <br>
-None of the variables observe any strong positive or negative relationships, only weak linear relationships. The most significant relationship is between Age and BMI with a -.34 correlation.<br>
+None of the variables observe any strong positive or negative relationships, only weak linear relationships. The most significant relationship is between Age and BMI with a -.34 correlation.  The correlation coefficient “r” measures the strength of a relationship and is always a number between -1 and 1, values less than .3 = none or very week relationship, values between 0.3 and 0.5 = weak relationship, values between 0.5 and 0.7 = moderate relationship, values greater than 0.7 = strong relationship, values = +/- 1 = perfect linear relationship. Correlation  provides insight into the relationship between variables and is NOT causation. <br>
 
 # Question 3
 
@@ -172,6 +179,7 @@ $$Charges = \beta_{0}+\beta_{1}*Age+\beta_{2}*BMI+\beta_{3}*Children$$
 model_Charges <- lm(Charges~Age + BMI + Children, data = insurancegroup7)
 model_Charges
 summary(model_Charges)
+summ(model_Charges)
 ```
 
 also write out the regression cleanly in this document.

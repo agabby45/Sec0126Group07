@@ -142,7 +142,7 @@ IQR(Children)
 Median: 1.00<br>
 Mode: 0<br>
 Std Deviation:1.391079<br>
-Histogram: Skewed right<br>
+Histogram: Skewed right, Unimodal<br>
 Measure of center: Median<br>
 Measure of spread: IQR (1.75)
 

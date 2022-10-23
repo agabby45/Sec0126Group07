@@ -1705,15 +1705,15 @@ insignificant.<br><br></p>
 <p>Using the regression equation above, predict the amount of medical
 expenses associated with this policy. (Provide a 95% confidence interval
 as well)</p>
-<pre class="r"><code>newPrediction &lt;- data.frame(Age = 35, BMI = 26, Children = 1, Female = 1, Smoker = 1, WinterSprings = 0, WinterPark = 0, Oviedo = 0)
+<pre class="r"><code>newPrediction &lt;- data.frame(Age = 35, BMI = 26, Children = 1, Female = 1, Smoker = 0, WinterSprings = 0, WinterPark = 0, Oviedo = 0)
 
 predict(model_Charges, newdata= newPrediction, interval = &quot;confidence&quot;)</code></pre>
 <pre><code>##        fit      lwr      upr
-## 1 33599.21 27597.87 39600.55</code></pre>
-<div id="based-on-the-prediction-model-the-charges-for-a-35-year-old-female-living-in-sanford-who-smokes-with-a-bmi-of-36-and-has-a-child-will-be-33600-give-or-take-6000." class="section level5">
-<h5>Based on the prediction model the charges for a 35 year old Female
-living in Sanford who smokes with a BMI of 36 and has a child will be
-$33,600 give or take $6,000.</h5>
+## 1 4562.232 357.7847 8766.679</code></pre>
+<div id="based-on-the-prediction-model-the-charges-for-a-35-year-old-non-smoking-female-living-in-sanford-with-a-bmi-of-36-and-has-a-child-will-be-4600-give-or-take-4200." class="section level5">
+<h5>Based on the prediction model the charges for a 35 year old
+non-smoking Female living in Sanford with a BMI of 36 and has a child
+will be $4,600 give or take $4,200.</h5>
 </div>
 </div>
 <div id="question-4" class="section level2">
@@ -1722,6 +1722,24 @@ $33,600 give or take $6,000.</h5>
 the group of city dummies. Does including the cities reduce the SSE by a
 statistically significant amount? (check the partial F-test for
 significance of the dummies as a group). Use <span class="math inline">\(\alpha = 0.05\)</span></p>
+<pre class="r"><code>dummy_free &lt;- insurancegroup7[,1:6, drop=FALSE] 
+dummy_free &lt;- lm(Charges ~., data = dummy_free)
+
+anova(dummy_free, model_Charges)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: Charges ~ Age + BMI + Female + Children + Smoker
+## Model 2: Charges ~ Age + BMI + Female + Children + Smoker + WinterSprings + 
+##     WinterPark + Oviedo
+##   Res.Df        RSS Df Sum of Sq      F Pr(&gt;F)
+## 1     44 1319509385                           
+## 2     41 1238547932  3  80961453 0.8934 0.4527</code></pre>
+<p>Comparing a model without the city variables showed no significant
+reduction in SEE so there is no significant difference between a model
+with or without the city dummy variables as a group when tested against
+an alpha of .05. Based on the summary results from Question 1 we can
+also see that each city still does not test significant against an alpha
+of .05.</p>
 </div>
 
 

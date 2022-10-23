@@ -1,6 +1,6 @@
 ---
 title: "Coding Assignment 2"
-author: "Team 7"
+author: "Team 7: Janice Borgex, "
 date: "Due: 2022-10-23 23:59"
 output: 
   html_document:
@@ -97,11 +97,11 @@ The insurance agent returns with another client:
 Using the regression equation above, predict the amount of medical expenses associated with this policy. (Provide a 95% confidence interval as well)
 
 ```{r q3}
-newPrediction <- data.frame(Age = 35, BMI = 26, Children = 1, Female = 1, Smoker = 1, WinterSprings = 0, WinterPark = 0, Oviedo = 0)
+newPrediction <- data.frame(Age = 35, BMI = 26, Children = 1, Female = 1, Smoker = 0, WinterSprings = 0, WinterPark = 0, Oviedo = 0)
 
 predict(model_Charges, newdata= newPrediction, interval = "confidence")
 ```
-##### Based on the prediction model the charges for a 35 year old Female living in Sanford who smokes with a BMI of 36 and has a child will be $33,600 give or take $6,000.
+##### Based on the prediction model the charges for a 35 year old non-smoking Female living in Sanford with a BMI of 36 and has a child will be $4,600 give or take $4,200.
 
 
 ## Question 4
@@ -111,8 +111,8 @@ Compare the model from question 1, to a model that does not include the group of
 ```{r q4}
 dummy_free <- insurancegroup7[,1:6, drop=FALSE] 
 dummy_free <- lm(Charges ~., data = dummy_free)
-summary(dummy_free)
+
 anova(dummy_free, model_Charges)
 ```
-
+Comparing a model without the city variables showed no significant reduction in SSE so there is no significant difference between a model with or without the city dummy variables as a group when tested against an alpha of .05. Based on the summary results from Question 1 we can also see that each city still does not test significant against an alpha of .05.
 

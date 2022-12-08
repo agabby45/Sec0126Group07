@@ -1,7 +1,7 @@
 ---
 title: "Coding Assignment 3"
-author: "Team N"
-date: "Due: 2021-12-09 23:59"
+author: "Team 7"
+date: "Due: 2022-12-09 23:59"
 output: 
   html_document:
     toc: true
@@ -11,6 +11,14 @@ output:
 ```{r setup, include=FALSE}
 #Put any packages you need here
 knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+##library(plotly)
+library(corrplot)
+library(car)
+library(gt)
+library(gtsummary)
+
+
 ```
 
 A Florida health insurance company wants to predict annual claims for individual clients. The company pulls a random sample of 50 customers. The owner wishes to charge an actuarially fair premium to ensure a normal rate of return. The owner collects all of their current customer’s health care expenses from the last year and compares them with what is known about each customer’s plan. 
@@ -30,6 +38,7 @@ Answer the following questions using complete sentences and attach all output, p
 
 ```{r dataset, include=FALSE}
 # Bring in the dataset here.
+insurancegroup7 <- read_excel("../Data/insurance_0126_Group7.xlsx")
 ```
 
 
@@ -39,10 +48,29 @@ Answer the following questions using complete sentences and attach all output, p
 Randomly select three observations from the sample and exclude from all modeling (i.e. n=47). Provide the summary statistics (min, max, std, mean, median) of the quantitative variables for the 47 observations.
 
 ```{r q1}
+set.seed(123456)
+index <- sample(seq_len(nrow(insurancegroup7)), size = 3)
+
+#data set of 47 observations ALL columns
+training_set <- insurancegroup7[-index,]
+
+#data set of 3 observations ALL columns
+testing_set <- insurancegroup7[index,]
+
+# Summary Statistics
+summary(training_set[,c(1:3,5)])
+noquote("Standard deviation for Charges")
+sd(training_set$Charges)
+noquote("Standard deviation for Age")
+sd(training_set$Age)
+noquote("Standard deviation for BMI")
+sd(training_set$BMI)
+noquote("Standard deviation for Children")
+sd(training_set$Children)
 
 
 ```
-
+One thing that is obvious here is that our dependent variable is skewed to the right. The mean is about 5.4 thousand dollars higher than the median and the standard deviation is high, and the range is from 1.1k to 59k. We may have outliers in our data.
 
 ## Question 2
 
@@ -50,27 +78,215 @@ Provide the correlation between all quantitative variables
 
 ```{r}
 
+corrplot(cor(training_set[,c(1:3,5)]),
+         type = "lower",order = "hclust",
+         tl.col = "black",
+         tl.srt = 45,
+         addCoef.col = "black",
+         diag = FALSE,)
 ```
-
+None of the variables have a high correlation with each other.
 
 ## Question 3
 
 Run a regression that includes all independent variables in the data table. Does the model above violate any of the Gauss-Markov assumptions? If so, what are they and what is the solution for correcting?
+```{r q3 part 1}
 
+model_1 <- lm(Charges~., data = training_set)
+summary(training_set)
+summary(model_1)
+
+par(mfrow=c(2,2))
+
+##Analyze plot output for assumption violations and provide solutions
+##Professor said Residuals vs Fitted violates non-linear
+##Normal Q-Q is a violation of #6
+plot(model_1)
+```
+Looking at the residuals vs. fitted plot, there appears to be a violation of Gauss-Markov Assumption #3, specification bias. By using the incorrect functional form “misspecification” occurs, assuming it is a linear function when it’s actually non-linear. The solution is to transform the data using a log function.
+
+Additionally, the Normal QQ plot has a normal flatness, does not form a 45-degree angle, exhibits a heavy tailed distribution, and the dependent variable is not normally distributed. This is a violation of the Gauss-Markov Assumption #6, the error is not normally distributed. The solution is to take the log creating a normal distribution, bringing outliers closer to other charges. (analyze the scatter plots to determine which form is best quadratic or log)
+
+In this example, the first plot titled “Residuals vs. Fitted,” you should not see a true pattern. In this case, since there is a non-linear relationship, you’ve already violated a classical assumption.
+
+The second plot titled “Normal Q-Q” shows the assumption of a normally distributed dependent variable for a fixed set of predictors. If this were a 45-degree line upwards, we could verify this. Unfortunately we do not have it in this case.
+
+The third plot titled “Scale-Location” checks for homoskedasticity. If this assumption were not violated, you’d see random points around a horizontal line. In this case, it is upwards sloping, so you can see there is a “fanning out” effect.
+
+The last plot “Residuals vs. Leverage” keeps an eye out for regression outliers, influential observations, and high leverage points. (Do not worry about this last plot).
+
+```{r q3 part 2}
+#Since we can only look at the quantitative variables in a scatter-plot and histogram, we are going to exclude the others.
+scatterplotMatrix(training_set[,c(1:3,5)])
+
+
+```
+From here you can see some non-linear relationships and non-normally distributed variables.
+
+Potential Solutions:
+1) Quadratic relationship between <independent variable> and Charges
+2) Logarithmic relationship between <independent variable> and Charges
+3) Dropping variables (dummy variables)
 
 ## Question 4
 
 Implement the solutions from question 3, such as data transformation, along with any other changes you wish. Use the sample data and run a new regression. How have the fit measures changed? How have the signs and significance of the coefficients changed?
 
-```{r q3}
+```{r q4}
+par(mfrow=c(2,2))
+
+#base model
+model_1 <- lm(Charges~., data = training_set[,c(1:9)])
+summary(model_1)
+plot(model_1)
+
+
+#Fix Charges' distribution by using log
+training_set$lnCharges <- log(training_set$Charges)
+training_set$lnAge <- log(training_set$Age)
+training_set$AgeSquared <- training_set$Age^2
+
+training_set$BMISquared <-training_set$BMI^2
+training_set$lnBMI <- log(training_set$BMI)
+
+#Display scatterplot showing distribution of Charges has been fixed
+#scatterplotMatrix(training_set[,c(10,2,3,5)])
+#Model of lnCharges, Age, BMI, Children + dummies
+model_lnCharges <- lm(lnCharges~., data = training_set[,c(10,2:9)])
+summary(model_lnCharges)
+plot(model_lnCharges)
+
+#scatterplotMatrix(training_set[,c(10,11,3,5)])
+#Model of lnCharges, lnAge, BMI, Children + dummies
+model_lnAge <- lm(lnCharges~., data = training_set[,c(10,11,3:9)])
+summary(model_lnAge)
+plot(model_lnAge)
+
+#scatterplotMatrix(training_set[,c(10,12,3,5)])
+#Model of lnCharges, Age, Age^2 BMI, Children + dummies
+model_AgeSquared <- lm(lnCharges~., data = training_set[,c(10,2:9,12)])
+summary(model_AgeSquared)
+plot(model_AgeSquared)
+
+#scatterplotMatrix(training_set[,c(10,12,3,5)])
+#Model of lnCharges, Age, lnBMI, Children + dummies
+model_lnBMI <- lm(lnCharges~., data = training_set[,c(10,2,14,3:9)])
+summary(model_lnBMI)
+plot(model_lnBMI)
+
+#scatterplotMatrix(training_set[,c(10,12,3,5)])
+#Model of lnCharges, Age, BMI, BMI^2, Children + dummies
+model_BMISquared <- lm(lnCharges~., data = training_set[,c(10,2:9,13)])
+summary(model_BMISquared)
+plot(model_BMISquared)
+
+#scatterplotMatrix(training_set[,c(10,12,3,5)])
+#Model of lnCharges, Age, BMI, BMI^2, Children + dummies
+model_lnAll <- lm(lnCharges~., data = training_set[,c(10,11,14,4:9)])
+summary(model_lnAll)
+plot(model_lnAll)
+
+
+
+#lnCharges, Age^2, BMI^, lnChildren
+#scatterplotMatrix(training_set[,c(10,13,14,5)])
+
+
+#hist(training_set$Charges)
+#hist(training_set$lnCharges)
+
+# No transformation
+#scatterplotMatrix(training_set[,c(1:3,5)])
+#summary(training_set[,c(1:3,5)])
+
+#lnCharges, lnAge
+#scatterplotMatrix(training_set[,c(10,12,3,5)])
+#summary(training_set[,c(10,12,3,5)])
+
+#lnCharges, AgeSquared
+#scatterplotMatrix(training_set[,c(10,13,3,5)])
+#summary(training_set[,c(10,13,3,5)])
+
+#lnCharges, lnBMI
+#scatterplotMatrix(training_set[,c(10,2,15,5)])
+#summary(training_set[,c(10,2,15,5)])
+
+#lnCharges, BMISquared
+#scatterplotMatrix(training_set[,c(10,2,14,5)])
+#summary(training_set[,c(10,2,14,5)])
+
+
 
 ```
 
 ## Question 5
 
-Use the 3 withheld observations and calculate the performance measures for your best two models. Which is the better model? (remember that "better" depends on whether your outlook is short or long run)
+#Use the 3 withheld observations and calculate the performance measures for your best two models. Which is the better model? (remember that "better" depends on whether your outlook is short or long run)
 
-```{r q4}
+```{r q5}
+testing_set$lnCharges <- log(testing_set$Charges)
+testing_set$lnAge <- log(testing_set$Age)
+testing_set$AgeSquared <- testing_set$Age^2
+
+testing_set$BMISquared <- testing_set$BMI^2
+testing_set$lnBMI <- log(testing_set$BMI)
+
+testing_set$base_model_pred <- predict(model_1, newdata = testing_set)
+
+testing_set$model_lnAge_pred <- predict(model_lnAge, newdata = testing_set) %>% exp()
+
+testing_set$model_lnBMI_pred <- predict(model_lnBMI, newdata = testing_set) %>% exp()
+
+testing_set$model_AgeSquared_pred <- predict(model_AgeSquared,newdata = testing_set) %>% exp()
+
+
+
+testing_set$error_bm <- testing_set$base_model_pred - testing_set$Charges
+
+testing_set$error_1 <- testing_set$model_lnAge_pred - testing_set$Charges
+
+testing_set$error_2 <- testing_set$model_lnBMI_pred - testing_set$Charges
+
+mean(testing_set$error_bm)
+mean(testing_set$error_1)
+mean(testing_set$error_2)
+
+
+
+mae <- function(error_vector){
+  error_vector %>% 
+  abs() %>% 
+  mean()
+}
+
+
+mae(testing_set$error_bm)
+mae(testing_set$error_1)
+mae(testing_set$error_2)
+
+rmse <- function(error_vector){
+   error_vector^2 %>% 
+  mean() %>% 
+  sqrt()
+
+}
+
+
+rmse(testing_set$error_bm)
+rmse(testing_set$error_1)
+rmse(testing_set$error_2)
+
+
+mape <- function(error_vector, actual_vector){
+  (error_vector/actual_vector) %>% 
+    abs() %>% 
+    mean()
+}
+
+
+mape(testing_set$error_bm, testing_set$Charges)
+mape(testing_set$error_1, testing_set$Charges)
+mape(testing_set$error_2, testing_set$Charges)
 
 ```
 
@@ -79,11 +295,12 @@ Use the 3 withheld observations and calculate the performance measures for your 
 
 Provide interpretations of the coefficients, do the signs make sense? Perform marginal change analysis (thing 2) on the independent variables.
 
-```{r}
+```{r q6}
 
 ```
 
 ## Question 7
+
 
 An eager insurance representative comes back with five potential clients. Using the better of the two models selected above, provide the prediction intervals for the five potential clients using the information provided by the insurance rep.
 
@@ -96,7 +313,7 @@ An eager insurance representative comes back with five potential clients. Using 
 | 5        | 45  | 27  | 1      | 3        | 0      | Oviedo         |
 
 
-```{r}
+```{r q7}
 
 ```
 

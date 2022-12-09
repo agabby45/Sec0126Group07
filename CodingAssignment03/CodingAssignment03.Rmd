@@ -145,7 +145,7 @@ training_set$BMISquared <-training_set$BMI^2
 training_set$lnBMI <- log(training_set$BMI)
 
 
-#Model of lnCharges, Age, BMI, Children + dummies
+#Model of Log of Charges, Age, BMI, Children + dummies
 model_lnCharges <- lm(lnCharges~., data = training_set[,c(10,2:9)])
 summary(model_lnCharges)
 plot(model_lnCharges)
@@ -186,6 +186,7 @@ plot(model_lnAll)
 #Use the 3 withheld observations and calculate the performance measures for your best two models. Which is the better model? (remember that "better" depends on whether your outlook is short or long run)
 
 ```{r q5}
+#Danny
 testing_set$lnCharges <- log(testing_set$Charges)
 testing_set$lnAge <- log(testing_set$Age)
 testing_set$AgeSquared <- testing_set$Age^2
@@ -193,7 +194,7 @@ testing_set$AgeSquared <- testing_set$Age^2
 testing_set$BMISquared <- testing_set$BMI^2
 testing_set$lnBMI <- log(testing_set$BMI)
 
-testing_set$base_model_pred <- predict(model_1, newdata = testing_set)
+testing_set$base_model_pred <- predict(model_1, newdata = testing_set) 
 
 testing_set$model_lnAge_pred <- predict(model_lnAge, newdata = testing_set) %>% exp()
 
@@ -302,7 +303,14 @@ mape(testing_set$error_5, testing_set$Charges)
 Provide interpretations of the coefficients, do the signs make sense? Perform marginal change analysis (thing 2) on the independent variables.
 
 ```{r q6}
-
+##Danny
+summary(model_1)
+summary(model_lnCharges)
+summary(model_lnAge)
+summary(model_AgeSquared)
+summary(model_lnBMI)
+summary(model_BMISquared)
+summary(model_lnAll)
 ```
 
 ## Question 7
@@ -320,14 +328,14 @@ An eager insurance representative comes back with five potential clients. Using 
 
 
 ```{r q7}
-
+#Janice
 ```
 
 ## Question 8
-
+--Janice
 The owner notices that some of the predictions are wider than others, explain why.
 
 ## Question 9 
-
+--Kim
 Are there any prediction problems that occur with the five potential clients? If so, explain.
 

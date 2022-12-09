@@ -115,14 +115,6 @@ The third plot titled “Scale-Location” checks for homoskedasticity. If this 
 
 The last plot “Residuals vs. Leverage” keeps an eye out for regression outliers, influential observations, and high leverage points. (Do not worry about this last plot).
 
-```{r q3 part 2}
-#Since we can only look at the quantitative variables in a scatter-plot and histogram, we are going to exclude the others.
-scatterplotMatrix(training_set[,c(1:3,5)])
-
-
-```
-From here you can see some non-linear relationships and non-normally distributed variables.
-
 Potential Solutions:
 1) Quadratic relationship between <independent variable> and Charges
 2) Logarithmic relationship between <independent variable> and Charges
@@ -143,80 +135,50 @@ plot(model_1)
 
 #Fix Charges' distribution by using log
 training_set$lnCharges <- log(training_set$Charges)
+hist(training_set$Charges)
+hist(training_set$lnCharges)
+
 training_set$lnAge <- log(training_set$Age)
 training_set$AgeSquared <- training_set$Age^2
 
 training_set$BMISquared <-training_set$BMI^2
 training_set$lnBMI <- log(training_set$BMI)
 
-#Display scatterplot showing distribution of Charges has been fixed
-#scatterplotMatrix(training_set[,c(10,2,3,5)])
+
 #Model of lnCharges, Age, BMI, Children + dummies
 model_lnCharges <- lm(lnCharges~., data = training_set[,c(10,2:9)])
 summary(model_lnCharges)
 plot(model_lnCharges)
 
-#scatterplotMatrix(training_set[,c(10,11,3,5)])
+
 #Model of lnCharges, lnAge, BMI, Children + dummies
 model_lnAge <- lm(lnCharges~., data = training_set[,c(10,11,3:9)])
 summary(model_lnAge)
 plot(model_lnAge)
 
-#scatterplotMatrix(training_set[,c(10,12,3,5)])
+
 #Model of lnCharges, Age, Age^2 BMI, Children + dummies
 model_AgeSquared <- lm(lnCharges~., data = training_set[,c(10,2:9,12)])
 summary(model_AgeSquared)
 plot(model_AgeSquared)
 
-#scatterplotMatrix(training_set[,c(10,12,3,5)])
+
 #Model of lnCharges, Age, lnBMI, Children + dummies
 model_lnBMI <- lm(lnCharges~., data = training_set[,c(10,2,14,3:9)])
 summary(model_lnBMI)
 plot(model_lnBMI)
 
-#scatterplotMatrix(training_set[,c(10,12,3,5)])
+
 #Model of lnCharges, Age, BMI, BMI^2, Children + dummies
 model_BMISquared <- lm(lnCharges~., data = training_set[,c(10,2:9,13)])
 summary(model_BMISquared)
 plot(model_BMISquared)
 
-#scatterplotMatrix(training_set[,c(10,12,3,5)])
-#Model of lnCharges, Age, BMI, BMI^2, Children + dummies
+
+#Model of lnCharges, lnAge, lnBMI, Children + dummies
 model_lnAll <- lm(lnCharges~., data = training_set[,c(10,11,14,4:9)])
 summary(model_lnAll)
 plot(model_lnAll)
-
-
-
-#lnCharges, Age^2, BMI^, lnChildren
-#scatterplotMatrix(training_set[,c(10,13,14,5)])
-
-
-#hist(training_set$Charges)
-#hist(training_set$lnCharges)
-
-# No transformation
-#scatterplotMatrix(training_set[,c(1:3,5)])
-#summary(training_set[,c(1:3,5)])
-
-#lnCharges, lnAge
-#scatterplotMatrix(training_set[,c(10,12,3,5)])
-#summary(training_set[,c(10,12,3,5)])
-
-#lnCharges, AgeSquared
-#scatterplotMatrix(training_set[,c(10,13,3,5)])
-#summary(training_set[,c(10,13,3,5)])
-
-#lnCharges, lnBMI
-#scatterplotMatrix(training_set[,c(10,2,15,5)])
-#summary(training_set[,c(10,2,15,5)])
-
-#lnCharges, BMISquared
-#scatterplotMatrix(training_set[,c(10,2,14,5)])
-#summary(training_set[,c(10,2,14,5)])
-
-
-
 ```
 
 ## Question 5
@@ -239,6 +201,10 @@ testing_set$model_lnBMI_pred <- predict(model_lnBMI, newdata = testing_set) %>% 
 
 testing_set$model_AgeSquared_pred <- predict(model_AgeSquared,newdata = testing_set) %>% exp()
 
+testing_set$model_BMISquared_pred <- predict(model_BMISquared,newdata = testing_set) %>% exp()
+
+testing_set$model_lnAll_pred <- predict(model_lnAll,newdata = testing_set) %>% exp()
+
 
 
 testing_set$error_bm <- testing_set$base_model_pred - testing_set$Charges
@@ -247,9 +213,24 @@ testing_set$error_1 <- testing_set$model_lnAge_pred - testing_set$Charges
 
 testing_set$error_2 <- testing_set$model_lnBMI_pred - testing_set$Charges
 
+testing_set$error_3 <- testing_set$model_AgeSquared_pred - testing_set$Charges
+
+testing_set$error_4 <- testing_set$model_BMISquared_pred - testing_set$Charges
+
+testing_set$error_5 <- testing_set$model_lnAll_pred - testing_set$Charges
+
+# No Transformations
 mean(testing_set$error_bm)
+# Log of Charges and Log of Age
 mean(testing_set$error_1)
+#Log of Charges and Log of BMI
 mean(testing_set$error_2)
+#Log of Charges, Age, Age^2
+mean(testing_set$error_3)
+#Log of Charges, BMI, BMI^2
+mean(testing_set$error_4)
+#Log of Charges, Log of Age, Log of BMI
+mean(testing_set$error_5)
 
 
 
@@ -259,10 +240,18 @@ mae <- function(error_vector){
   mean()
 }
 
-
+# No Transformations
 mae(testing_set$error_bm)
+# Log of Charges and Log of Age
 mae(testing_set$error_1)
+#Log of Charges and Log of BMI
 mae(testing_set$error_2)
+#Log of Charges, Age, Age^2
+mae(testing_set$error_3)
+#Log of Charges, BMI, BMI^2
+mae(testing_set$error_4)
+#Log of Charges, Log of Age, Log of BMI
+mae(testing_set$error_5)
 
 rmse <- function(error_vector){
    error_vector^2 %>% 
@@ -271,10 +260,19 @@ rmse <- function(error_vector){
 
 }
 
-
+# No Transformations
 rmse(testing_set$error_bm)
+# Log of Charges and Log of Age
 rmse(testing_set$error_1)
+#Log of Charges and Log of BMI
 rmse(testing_set$error_2)
+#Log of Charges, Age, Age^2
+rmse(testing_set$error_3)
+#Log of Charges, BMI, BMI^2
+rmse(testing_set$error_4)
+#Log of Charges, Log of Age, Log of BMI
+rmse(testing_set$error_5)
+
 
 
 mape <- function(error_vector, actual_vector){
@@ -283,10 +281,18 @@ mape <- function(error_vector, actual_vector){
     mean()
 }
 
-
+# No Transformations
 mape(testing_set$error_bm, testing_set$Charges)
+# Log of Charges and Log of Age
 mape(testing_set$error_1, testing_set$Charges)
+#Log of Charges and Log of BMI
 mape(testing_set$error_2, testing_set$Charges)
+#Log of Charges, Age, Age^2
+mape(testing_set$error_3, testing_set$Charges)
+#Log of Charges, BMI, BMI^2
+mape(testing_set$error_4, testing_set$Charges)
+#Log of Charges, Log of Age, Log of BMI
+mape(testing_set$error_5, testing_set$Charges)
 
 ```
 

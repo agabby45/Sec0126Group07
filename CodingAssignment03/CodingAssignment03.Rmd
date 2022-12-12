@@ -1,7 +1,7 @@
 ---
 title: "Coding Assignment 3"
 author: "Team 7"
-date: "Due: 2022-12-09 23:59"
+date: "Due: 2022-12-11 23:59"
 output: 
   html_document:
     toc: true
@@ -103,22 +103,9 @@ par(mfrow=c(2,2))
 ##Normal Q-Q is a violation of #6
 plot(model_1)
 ```
-Looking at the residuals vs. fitted plot, there appears to be a violation of Gauss-Markov Assumption #3, specification bias. By using the incorrect functional form “misspecification” occurs, assuming it is a linear function when it’s actually non-linear. The solution is to transform the data using a log function.
+Looking at the residuals vs. fitted plot, there appears to be a violation of Gauss-Markov Assumption #3, specification bias. By using the incorrect functional form “misspecification” occurs, assuming it is a linear function when it’s actually non-linear. The solution is to transform the data using a log or quadratic function. 
 
-Additionally, the Normal QQ plot has a normal flatness, does not form a 45-degree angle, exhibits a heavy tailed distribution, and the dependent variable is not normally distributed. This is a violation of the Gauss-Markov Assumption #6, the error is not normally distributed. The solution is to take the log creating a normal distribution, bringing outliers closer to other charges. (analyze the scatter plots to determine which form is best quadratic or log)
-
-In this example, the first plot titled “Residuals vs. Fitted,” you should not see a true pattern. In this case, since there is a non-linear relationship, you’ve already violated a classical assumption.
-
-The second plot titled “Normal Q-Q” shows the assumption of a normally distributed dependent variable for a fixed set of predictors. If this were a 45-degree line upwards, we could verify this. Unfortunately we do not have it in this case.
-
-The third plot titled “Scale-Location” checks for homoskedasticity. If this assumption were not violated, you’d see random points around a horizontal line. In this case, it is upwards sloping, so you can see there is a “fanning out” effect.
-
-The last plot “Residuals vs. Leverage” keeps an eye out for regression outliers, influential observations, and high leverage points. (Do not worry about this last plot).
-
-Potential Solutions:
-1) Quadratic relationship between <independent variable> and Charges
-2) Logarithmic relationship between <independent variable> and Charges
-3) Dropping variables (dummy variables)
+The Normal QQ plot has a normal flatness, does not form a 45-degree angle, exhibits a heavy tailed distribution, and the dependent variable is not normally distributed. This is a violation of the Gauss-Markov Assumption #6, the error is not normally distributed. A study conducted by Ward et al. found that “health care expenditures are higher for people with excess weight across a wide range of ages and BMI levels, with especially high costs for people with severe obesity.” (Ward et al., 2021) Because it is assumed that the rate of increase in charges related to an increase in BMI is not consistent, one solution is to take the log of charges and the log of BMI creating a normal distribution, bringing outliers closer to other charges. Another solution is to take the log of age, as the rate of increase in charges related to age may not be consistent. We looked at several transformations to determine the best model. 
 
 ## Question 4
 
@@ -180,6 +167,19 @@ model_lnAll <- lm(lnCharges~., data = training_set[,c(10,11,14,4:9)])
 summary(model_lnAll)
 plot(model_lnAll)
 ```
+Base Model: Age, BMI, Children, and Smoker all test significant. R2 is 90%, and the residual standard error is 5259. The dummy variables (cities, Female) do not test significant. The variables that tested significant all have a direct relationship with the dependent variable (Charges).
+
+lnCharges Model: By taking the log of Charges, Age, Children, and Smoker all test significant, and BMI no longer tests significant. While you cannot compare transformed models, R2 for this model is 86%. By taking the log of charges, the sign of Winter Park flips to negative. This does not seem logical, as there should be a direct relationship between charges and cities. However, taking the log of charges did make the distribution of charges more normal and the residual standard error is low, 0.4556, meaning the model predicts charges with an error of 0.4506
+
+lnAge Model: By taking the log of Charges and Age, Age, Children, and Smoker test significant, BMI does not test significant. R2 for this model is 86% and Winter Park is negative. The residual standard error is 0.4556. 
+
+AgeSquared: By taking the log of Charges and Age Squared, only Children and Smoker test significant, BMI and Age do not test significant. R2 for this model is 86% and Winter Park and Age Squared are  negative. While the residual standard error is low, the direction of Age Squared and Winter Park does not make sense and several items that logically should test significant do not. 
+
+lnBMI: By taking the log of Charges and Age, Age, Children, BMI, Log BMI, Smoker, and Winter Springs all test significant. BMI changed sign. R2 for this model is 90%. The residual standard error is 0.3948. 
+
+BMISquared: By taking the log of Charges and BMI Squared, Age, Children, BMI, BMI Squared, Smoker, and Winter Springs all test significant. BMI Squared changed sign. R2 for this model is 90%. The residual standard error is 0.3893.
+
+lnAll Model: By taking the log of Charges, Age, BMI, the fit reduced to 86% and the standard error increased to .451. Only lnAge, Children, Smoker tested significantly. Winterpark changed to a negative coefficient.
 
 ## Question 5
 
@@ -296,6 +296,9 @@ mape(testing_set$error_4, testing_set$Charges)
 mape(testing_set$error_5, testing_set$Charges)
 
 ```
+After care full studying the BIAS, MAE, RMSE, and MAPE, we have concluded that the best fit model is the base model. With a 90% fit model and the smallest BIAS, MAE, RMSE, and MAPE, out of all the models, the base model will give us the best results. 
+To better protect the model against large forecasting errors, we looked at the RMSE, and our model scored better on the RMSE than any of the other models. This means that whether its long run or short run, our base model will be a better model than any of the other models.
+
 
 
 ## Question 6
@@ -303,15 +306,29 @@ mape(testing_set$error_5, testing_set$Charges)
 Provide interpretations of the coefficients, do the signs make sense? Perform marginal change analysis (thing 2) on the independent variables.
 
 ```{r q6}
-##Danny
+model_1 <- lm(Charges~., data = training_set[,c(1:9)])
 summary(model_1)
-summary(model_lnCharges)
-summary(model_lnAge)
-summary(model_AgeSquared)
-summary(model_lnBMI)
-summary(model_BMISquared)
-summary(model_lnAll)
+
 ```
+
+After reviewing the coefficients, the coefficient signs for Age, BMI, and Children (tested significant) are correct since they have a direct relationship with the dependent variable (Charges).
+
+We expected Female (did not test significant) to be positive and also has a direct relationship with Charges because, on average, there are more potential medical costs with being a female. For example: Getting pregnant and having a child.
+
+Smoker should have a positive coefficient because being a smoker will only increase medical costs. 
+
+Age- for each year that goes by, there will be a $246 increase approximately in total charges. MOE=121.74
+BMI- For every point increase in BMI, there will be a $410 increase approximately in total charges. MOE=369.7
+Female- MOE=3,902.78
+Children- For each child there will be approximately $1,296 increase in total charges. MOE=1,186.24
+Smoker- A smoker can expect to have approximately $29,982 more in total charges than a non smoker. MOE=4,006
+Winter Springs- MOE=4,774.04
+Winter Park- MOE=5,666.24
+Oviedo- MOE=4,921.08
+
+Cities (WinterSprings, WinterPark, Oviedo): None of the city variables tested significantly; however, living in WinterSprings or WinterPark or Oviedo will cost on average $4,155, $1,140, and $1,063 more than living in Sanford.
+
+
 
 ## Question 7
 
@@ -328,14 +345,33 @@ An eager insurance representative comes back with five potential clients. Using 
 
 
 ```{r q7}
-#Janice
+Customer_1 <- data.frame(Age = 60, BMI = 22, Children = 0, Female = 1, Smoker = 0, WinterSprings = 0, WinterPark = 0, Oviedo = 1)
+Customer_2 <- data.frame(Age = 40, BMI = 30, Children = 1, Female = 0, Smoker = 0, WinterSprings = 0, WinterPark = 0, Oviedo = 0)
+Customer_3 <- data.frame(Age = 25, BMI = 25, Children = 0, Female = 0, Smoker = 1, WinterSprings = 0, WinterPark = 1, Oviedo = 0)
+Customer_4 <- data.frame(Age = 33, BMI = 35, Children = 2, Female = 1, Smoker = 0, WinterSprings = 1, WinterPark = 0, Oviedo = 1)
+Customer_5 <- data.frame(Age = 45, BMI = 27, Children = 3, Female = 1, Smoker = 0, WinterSprings = 0, WinterPark = 0, Oviedo = 1)
+
+
+predict(model_1, newdata= Customer_1, interval = "prediction")
+predict(model_1, newdata= Customer_2, interval = "prediction")
+predict(model_1, newdata= Customer_3, interval = "prediction")
+predict(model_1, newdata= Customer_4, interval = "prediction")
+predict(model_1, newdata= Customer_5, interval = "prediction")
+
 ```
+For Customer 1 we expect the charges to be $8,600 give or take $12,000 but obviously not lower than $0
+For Customer 2 we expect the charges to be $5,500 give or take $11,000 but obviously not lower than $0.
+For Customer 3 we expect the charges to be $30,000 give or take $12,500.
+For Customer 4 we expect the charges to be $14,000 give or take $12,500.
+For Customer 5 we expect the charges to be $12,000 give or take $12,000 but obviously not lower than $0.
 
 ## Question 8
---Janice
+
 The owner notices that some of the predictions are wider than others, explain why.
 
+The training set only has 47 observations which causes larger forecasting errors. Additionally, there is some conditional variables (BMI, city) that adds to error size and will be captured in the wide prediction interval. With our model, customer 3 was a male smoker and customer 4 is a female with 2 children. Both of these customers had a range of about $25,000 that can be explained by being a smoker or having multiple children. 
+
 ## Question 9 
---Kim
 Are there any prediction problems that occur with the five potential clients? If so, explain.
 
+The ranges showed extrapolation for our Charges range. Model_1 (default model with no transformations) shows Charges has a range of 1,147 to 58,571. The minimum value was breached with Customers 1, 2, and 5. This could be because of the low number of observations (N=47) causing the forecast model to have large errors.
